@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  *
  * @author andreicristea
  */
-public class LevelsHighScore extends Database<Highscore> implements Insertable<Highscore> {
+public class LevelsHighScore extends Database<Highscore> implements Insertable<Highscore>, Updatable<Highscore, String> {
     public LevelsHighScore() {
         super("jdbc:derby://localhost:1527", "labyrinth", "highscores");
     }
@@ -43,7 +43,7 @@ public class LevelsHighScore extends Database<Highscore> implements Insertable<H
     }
 
     @Override
-    protected void loadData() {
+    public void loadData() {
         super.loadData((ResultSet rs) -> {
             int totalLevels = rs.getInt("total_levels");
             int lastLevel = rs.getInt("last_level");
@@ -71,6 +71,31 @@ public class LevelsHighScore extends Database<Highscore> implements Insertable<H
         return -1;
     }
 
-    
+    @Override
+    public int update(Highscore stored, String name) {
+        
+        System.out.println("Update");
+        String sql = "UPDATE " + tableName + " SET " +
+                "difficulty = ?," +
+                "last_level = ?," + 
+                "total_levels = ?," + 
+                "name = ?" +
+                " WHERE " + 
+                "name=?";
+        
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, stored.getDifficulty());
+            statement.setInt(2, stored.getLastLevel());
+            statement.setInt(3, stored.getTotalLevels());
+            statement.setString(4, stored.getName());
+            statement.setString(5, name);
+            return statement.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(LevelsHighScore.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        
+        return -1;
+        
+    }
     
 }

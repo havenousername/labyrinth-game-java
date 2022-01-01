@@ -7,19 +7,25 @@ package labyrinth.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CyclicBarrier;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
+
+import labyrinth.model.cameravision.CameraBottomOverflow;
+import labyrinth.model.cameravision.CameraLeftOverflow;
+import labyrinth.model.cameravision.CameraRightOverflow;
+import labyrinth.model.cameravision.CameraTopOverflow;
 
 /**
  *
  * @author andreicristea
  */
 public class GameLevel implements Comparable<GameLevel> {
-    static private int PLAYER_VISION = 3;
+    public static final int PLAYER_VISION = 3;
+    public static final int DRAGON_VISION = 1;
+    public static final int CAMERA_VISION = 8;
     private final GameId gameId;
     private final int rows, cols;
     private final LevelCell[][] levelCells;
@@ -65,9 +71,7 @@ public class GameLevel implements Comparable<GameLevel> {
                 Level level;
                 switch(gameLevelChars.get(i).get(j)) {
                     case "P" -> { 
-                        System.out.println("Case p");
                         playerPosition = new Position(i, j);
-                        System.out.println("P" + playerPosition);
                         level = Level.PLAYER;
                     } 
                     case "#" -> {
@@ -89,18 +93,44 @@ public class GameLevel implements Comparable<GameLevel> {
         }
     }
     
-    private boolean isBetweenPosition(int i, int j) {
-        return i >= player.position.getX() - PLAYER_VISION && i <= player.position.getX() + PLAYER_VISION
-                        &&
-                      j >= player.position.getY() - PLAYER_VISION && j <= player.position.getY() + PLAYER_VISION;
+    private boolean isBetweenPosition(int i, int j, int x, int y, int width) {
+        return isAroundCellTop(i, x, width) && 
+                isAroundCellBottom(i, x, width) && 
+                isAroundCellLeft(j, y, width) && 
+                isAroundCellRight(j, y, width);
     }
     
-    public List<LevelCell> getPlayerVisibleCells() {
+    
+    private static boolean isAroundCellTop(int i, int x, int width) {
+        return i >= x - width;
+    }
+    
+    private static boolean isAroundCellBottom(int i, int x, int width) {
+        return i <= x + width;
+    }
+    
+    private boolean isAroundCellRight(int j, int y, int width) {
+        return j <= y + width;
+    }
+    
+    private boolean isAroundCellLeft(int j, int y, int width) {
+        return j >= y - width;
+    }
+    
+    private boolean isPlayerBetweenPosition(int i, int j, int width) {
+        return isBetweenPosition(i, j, player.getPosition().getX(), player.getPosition().getY(), width);
+    }
+    
+    private boolean isDragonBetweenPosition(int i, int j, int width) {
+        return isBetweenPosition(i, j, dragon.getPosition().getX(), dragon.getPosition().getY(), width);
+    }
+    
+    private List<LevelCell> getPlayerSurroundingCells(int width) {
         List<LevelCell> cells = new ArrayList<>();
         
         for (int i = 0; i < levelCells.length; i++) {
             for (int j = 0; j < levelCells[i].length; j++) {
-                if (isBetweenPosition(i, j)) {
+                if (isPlayerBetweenPosition(i, j, width)) {
                     cells.add(levelCells[i][j]);
                 }
             }
@@ -109,12 +139,51 @@ public class GameLevel implements Comparable<GameLevel> {
         return cells;
     }
     
+    public List<LevelCell> getPlayerVisibleCells() {
+        return getPlayerSurroundingCells(PLAYER_VISION);
+    }
+    
+    public List<LevelCell> getPlayerAttackCells() {
+        return getPlayerSurroundingCells(DRAGON_VISION);
+    }
+    
+    public LevelCell[][] getCameraVisionCells() {
+        Deque<List<LevelCell>> cells = new LinkedList<>();
+        Position playerPosition = player.getPosition();
+        int shiftX = CAMERA_VISION / 2;
+        int shiftY = CAMERA_VISION / 2;
+        
+        int shiftBottom = new CameraBottomOverflow(this.player.getPosition(), shiftX).getCellShiftSize();
+        int shiftTop = new CameraTopOverflow(this.player.getPosition(), shiftX, levelCells.length).getCellShiftSize();
+        int shiftLeft = new CameraLeftOverflow(this.player.getPosition(), shiftY, levelCells[0].length).getCellShiftSize();
+        int shiftRight = new CameraRightOverflow(this.player.getPosition(), shiftY).getCellShiftSize();
+
+        for (int i = 0; i < levelCells.length; i++) {
+            List<LevelCell> cellsLocal = new ArrayList<>();
+            for (int j = 0; j < levelCells[i].length; j++) {
+                if (
+                    isAroundCellTop(i, playerPosition.getX(), shiftTop) && 
+                    isAroundCellBottom(i, playerPosition.getX(), shiftBottom) && 
+                    isAroundCellLeft(j, playerPosition.getY(), shiftLeft) && 
+                    isAroundCellRight(j, playerPosition.getY(), shiftRight)
+                   ) {
+                    cellsLocal.add(levelCells[i][j]);
+                }
+            }
+            cells.add(cellsLocal);
+        }
+        
+        return cells.stream()
+                .map(l -> l.stream().toArray(LevelCell[]::new))
+                .toArray(LevelCell[][]::new);
+    }
+    
     public boolean isPlayerVisibleCell(LevelCell lc) {
         return getPlayerVisibleCells().contains(lc);
     }
     
     public boolean hasEnemyPlayerVisibleCells() {
-        return getPlayerVisibleCells().stream().filter(levelCell -> levelCell.getLevel().equals(Level.ENEMY)).count() > 0;
+        return getPlayerAttackCells().stream().filter(levelCell -> levelCell.getLevel().equals(Level.ENEMY)).count() > 0;
     }
     
     public boolean move(InteractiveActor actor, Position newPosition) {

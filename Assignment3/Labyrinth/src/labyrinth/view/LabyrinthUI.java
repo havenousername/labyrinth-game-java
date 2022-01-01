@@ -22,24 +22,24 @@ import labyrinth.model.Position;
  * @author andreicristea
  */
 public class LabyrinthUI extends JPanel {
-    private Game game;
+    public static final int TILE_SIZE = 64;
+    private final Game game;
     private final Image dragonImage,  grass, grassHidden, wall, wallHidden, playerImage;
-    private final int tileSize = 64;
     
     public LabyrinthUI(Game game) throws IOException {
         this.game = game;
-        System.out.println(game.levelMap());
-        dragonImage = ResourceLoader.loadImage("resource/dragon.png");
-        grass = ResourceLoader.loadImage("resource/grass.jpg");
-        grassHidden = ResourceLoader.loadImage("resource/grass_hidden.jpg");
-        wall = ResourceLoader.loadImage("resource/wall.jpg");
-        wallHidden = ResourceLoader.loadImage("resource/wall_hidden.jpg");
-        playerImage = ResourceLoader.loadImage("resource/player.jpg");
+//        System.out.println(game.levelMap());
+        dragonImage = ResourceLoader.loadImage("resource/dragon-level-1.png");
+        grass = ResourceLoader.loadImage("resource/grass-level-1.png");
+        grassHidden = ResourceLoader.loadImage("resource/grass-level-1_hidden.png");
+        wall = ResourceLoader.loadImage("resource/wall-level-1.jpeg");
+        wallHidden = ResourceLoader.loadImage("resource/wall-level-1_hidden.png");
+        playerImage = ResourceLoader.loadImage("resource/player-new.png");
     }
     
     public boolean refresh() {
         if (!game.isLevelLoaded()) return false;
-        Dimension dimension = new Dimension(game.getLevelRows() * tileSize, game.getLevelCols() * tileSize);  
+        Dimension dimension = new Dimension(game.getLevelRows() * TILE_SIZE, game.getLevelCols() * TILE_SIZE);  
         setPreferredSize(dimension);
         setMaximumSize(dimension);
         setSize(dimension);
@@ -52,26 +52,23 @@ public class LabyrinthUI extends JPanel {
     protected void paintComponent(Graphics graphics) {
         if (!game.isLevelLoaded()) return;
         Graphics2D graphics2d = (Graphics2D)graphics;
-        
-        Position position = game.getPlayerPosition();
-        LevelCell[][] levelCells = game.getLevelCells();
+        LevelCell[][] levelCells = game.getCurrentLevel().getCameraVisionCells();
         for (var x = 0; x < levelCells.length; x++) {
             for (var y = 0; y < levelCells[x].length; y++ ) {
                 Image image = null;
                 Level level = levelCells[x][y].getLevel();
-//                System.out.println("Visible cells " + game.getCurrentLevel().getPlayerVisibleCells().toString());
                 boolean isVisibleCell = game.getCurrentLevel().isPlayerVisibleCell(levelCells[x][y]);
                 image = switch (level) {
                     case WALL -> isVisibleCell ? wall : wallHidden;
                     case EMPTY -> isVisibleCell ? grass : grassHidden;
-                    case EXIT -> grass;
+                    case EXIT -> isVisibleCell ?  grass : wallHidden;
                     case PLAYER -> playerImage;
-                    case ENEMY -> dragonImage;
+                    case ENEMY -> isVisibleCell ? dragonImage : grassHidden;
                     default -> grass;
                 };
                 if (image == null) continue;
-                graphics2d.drawImage(image, y * tileSize, x * tileSize, tileSize, tileSize, null);
+                graphics2d.drawImage(image, y * TILE_SIZE, x * TILE_SIZE, TILE_SIZE, TILE_SIZE, null);
             }
         }
-    }
+    }    
 }

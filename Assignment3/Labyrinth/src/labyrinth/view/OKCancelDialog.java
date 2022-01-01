@@ -10,6 +10,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JButton;
@@ -33,12 +34,19 @@ public abstract class OKCancelDialog extends JDialog
     protected JPanel    btnPanel;
     protected JButton   btnOK;
     protected JButton   btnCancel;
+    protected String okStr;
+    protected String cancelStr;
 
-    protected OKCancelDialog(JFrame frame, String name)
+    protected OKCancelDialog(JFrame frame, String name, String okStr, String cancelStr)
     {
         super(frame, name, true);
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        this.okStr = okStr != null ? okStr : "OK";
+        this.cancelStr = cancelStr != null ? cancelStr : "Cancel";
         btnCode = CANCEL;
+        actionOK.putValue(Action.NAME, this.okStr);
+        actionCancel.putValue(Action.NAME, this.cancelStr);
+                
         btnOK = new JButton(actionOK);
         btnOK.setMnemonic('O');
         btnOK.setPreferredSize(new Dimension(90, 25));
@@ -58,13 +66,13 @@ public abstract class OKCancelDialog extends JDialog
         btnPanel.add(btnOK);
         btnPanel.add(btnCancel);
     }
-
+   
     public int getButtonCode()      { return btnCode; }
 
     protected abstract boolean processOK();
     protected abstract void processCancel();
 
-    private AbstractAction  actionOK = new AbstractAction("OK")
+    private AbstractAction  actionOK = new AbstractAction()
     {
         public void actionPerformed(ActionEvent e)
         {
@@ -76,7 +84,7 @@ public abstract class OKCancelDialog extends JDialog
         }
     };
 
-    private AbstractAction actionCancel = new AbstractAction("Cancel")
+    private AbstractAction actionCancel = new AbstractAction()
     {
         public void actionPerformed(ActionEvent e)
         {

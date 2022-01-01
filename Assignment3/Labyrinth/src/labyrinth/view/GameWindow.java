@@ -7,9 +7,12 @@ package labyrinth.view;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,7 +22,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.WindowConstants;
+import labyrinth.model.Direction;
 import labyrinth.model.Game;
+import labyrinth.model.GameLevel;
 
 /**
  *
@@ -30,16 +35,26 @@ public class GameWindow extends JFrame {
     private LabyrinthUI labyrinthUI;
     private String playerName = "";
     private final PlayerNameDialog playerNameDialog;
+    private final GameOverDialog gameOverDialog;
     private final AbstractAction playerNameDialogAction = new AbstractAction("Change player name") {
         @Override
         public void actionPerformed(ActionEvent e) {
+            playerNameDialog.setAcceptConsumer(false);
             playerNameDialog.setVisible(true);
             if ( playerNameDialog.getButtonCode() != OKCancelDialog.OK ) return;
             playerOkDialog.accept(false);
         }
         
     };
+    private final AbstractAction playAgain = new AbstractAction("Play Again") {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            playerReplay.accept(false);
+        }
+    };
+    
     private CyclicBarrier dragonAttack; 
+    private final AtomicBoolean gameEnded;
     
     private Consumer<Boolean> playerOkDialog = new Consumer<Boolean>() {
         @Override
@@ -56,38 +71,68 @@ public class GameWindow extends JFrame {
         }
     };
     
+    private Consumer<Boolean> playerReplay = new Consumer<Boolean>() {
+        @Override
+        public void accept(Boolean isDialogCall) {
+            if (gameEnded.get()) {
+                gameEnded.set(true);
+            }
+            replay();
+        }
+    };
     
-    public GameWindow() {
+    void replay() {
         game = new Game();
+        gameEnded.set(false);
         dragonAttack = new CyclicBarrier(2);
-        // player name dialog
-        playerNameDialog = new PlayerNameDialog(this, "Name your player", playerName, playerOkDialog);
-        playerNameDialog.setVisible(true);
-    }
-    
-    private void initMainWindow() throws IOException {
-//        game.nextLevel();
-//        game.nextLevel();
+        
         game.activateNextLevel();
         game.activateLevel(dragonAttack);
         
+        refreshAfterDragonAttack();
+        playerNameDialog.setAcceptConsumer(true);
+        
+        try {
+            labyrinthUI = new LabyrinthUI(game);
+            add(labyrinthUI, BorderLayout.CENTER);
+        } catch (IOException ex) {}
+    }
+    
+    
+    public GameWindow() {
+        game = new Game();
+        gameEnded = new AtomicBoolean();
+        gameEnded.set(false);
+        dragonAttack = new CyclicBarrier(2);
+        // player name dialog
+        playerNameDialog = new PlayerNameDialog(this, "Name your player", playerName, playerOkDialog);
+        gameOverDialog = new GameOverDialog(this, "Game Over", playerReplay);
+        playerNameDialog.setVisible(true);
+    }
+    
+    private void refreshAfterDragonAttack() {
         Thread t1 = new Thread(() -> {
             while (true) {
                 try {
                     dragonAttack.await();
                     labyrinthUI.refresh();
+                    if (!game.getPlayer().isAlive()) {
+                        game.recordHighscore();
+                        gameOverDialog.setGameOverText("Game ended. You lost!");
+                        gameOverDialog.setVisible(true);
+                        break;
+                    }
                 } catch (InterruptedException | BrokenBarrierException ex) {
                     Logger.getLogger(GameWindow.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+            
         });
         
         t1.start();
-        
-        setTitle("Labyrinth");
-        setSize(600, 600);
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        
+    }
+    
+    private void initMenu() {
         JMenu menuGame = new JMenu("Settings");
         
         JMenuBar menuBar = new JMenuBar();
@@ -98,7 +143,7 @@ public class GameWindow extends JFrame {
             }
         });
         
-        JMenuItem changePlayerName = new JMenuItem(playerNameDialogAction);
+        JMenuItem menuReplay = new JMenuItem(playAgain);
         
         JMenuItem menuExit = new JMenuItem(new AbstractAction("Exit") {
             @Override
@@ -107,19 +152,70 @@ public class GameWindow extends JFrame {
             }
         });
         
+        menuGame.add(menuReplay);
         menuGame.add(menuHighscores);
-        menuGame.add(changePlayerName);
+        menuGame.add(playerNameDialogAction);
         menuGame.add(menuExit); 
         menuBar.add(menuGame);
+        setJMenuBar(menuBar);
+    }
+    
+    private void initMainWindow() throws IOException {
+        game.activateNextLevel();
+        game.activateLevel(dragonAttack);
+        
+        refreshAfterDragonAttack();
+        
+        setTitle("Labyrinth");
+        setSize((GameLevel.CAMERA_VISION + 1) * LabyrinthUI.TILE_SIZE, (GameLevel.CAMERA_VISION + 2) * LabyrinthUI.TILE_SIZE + 50);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        
+        initMenu();
         setLayout(new BorderLayout());
         try {
             labyrinthUI = new LabyrinthUI(game);
             add(labyrinthUI, BorderLayout.CENTER);
         } catch (IOException ex) {}
-        setJMenuBar(menuBar);
-        
         // key adapter
-//        setResizable(false);
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent keyEvent) {
+                super.keyPressed(keyEvent);
+                if (!game.isLevelLoaded() || game.getCurrentLevel().isLevelOver() || game.isGameEnded()) {
+                    System.out.println("Game ended. You lost!");
+                    return;
+                }
+                int keyCode = keyEvent.getKeyCode();
+                Direction direction = null;
+                switch (keyCode) {
+                    case KeyEvent.VK_LEFT -> direction = Direction.LEFT;
+                    case KeyEvent.VK_RIGHT -> direction = Direction.RIGHT;
+                    case KeyEvent.VK_UP -> direction = Direction.UP;
+                    case KeyEvent.VK_DOWN -> direction = Direction.DOWN;
+                }
+                
+                if (direction != null && game.stepPlayer(direction) ) {
+                    labyrinthUI.repaint();
+                    if (game.getCurrentLevel().isLevelOver()) {
+                        gameEnded.set(true);
+                        gameOverDialog.setGameOverText("Game ended. You lost!");
+                        gameOverDialog.setVisible(true);
+                        System.out.println("Game ended. You lost!");
+                    } else if (game.getCurrentLevel().isLevelWin() && game.isGameEnded()) {
+                        gameOverDialog.setGameOverText("Game ended. You won!");
+                        gameOverDialog.setVisible(true);
+                        System.out.println("Game ended");
+                        gameEnded.set(true);
+                    } else if (game.getCurrentLevel().isLevelEnded()) {
+                        gameEnded.set(false);
+                        game.activateNextLevel();
+                        game.activateLevel(dragonAttack);
+                        refreshAfterDragonAttack();
+                    }
+                }
+            }
+        });
+        setResizable(false);
         setLocationRelativeTo(null);
         setVisible(true);
     }

@@ -66,19 +66,31 @@ public class Game implements LevelIterator<Map.Entry<String, GameLevel>> {
    
     
    
-    public boolean step(Direction direction) {
+    public boolean stepPlayer(Direction direction) {
         boolean stepped = level.movePlayer(direction);
-        if (stepped && isGameEnded()) {
-            Highscore highscore = new Highscore(level.getGameId().difficulty, countLevels, level.getGameId().level, player.name);
-            highscoreDatabase.insert(highscore);
-            isBetterHighScore = highscoreDatabase.getData().stream().filter((highScore) -> 
-                    (highScore.getName() == null ? player.name == null : highScore.getName().equals(player.name)) && 
-                    highScore.getTotalLevels() > countLevels).count() == 0;
+
+        if (stepped && (isGameEnded() || level.isLevelOver())) {
+            recordHighscore();
         }
 
         return stepped;
     }
-   
+    
+    public void recordHighscore() {
+        Highscore highscore = new Highscore(level.getGameId().difficulty, countLevels, level.getGameId().level, player.name);
+        boolean hasInDatabase = highscoreDatabase.getData().stream().filter((highScore) -> highScore.getName().equals(player.getName())).count() > 0;
+        System.out.println("Has in database " + hasInDatabase);
+        if (hasInDatabase) {
+            highscoreDatabase.update(highscore, highscore.getName());
+        } else {
+            highscoreDatabase.insert(highscore);
+        }
+        
+        highscoreDatabase.loadData();
+        isBetterHighScore = highscoreDatabase.getData().stream().filter((highScore) -> 
+                (highScore.getName() == null ? player.name == null : highScore.getName().equals(player.name)) && 
+                highScore.getTotalLevels() > countLevels).count() == 0;
+    }   
     
     public void loadLevel(String difficulty, int level) {
         countLevels++;
@@ -135,7 +147,7 @@ public class Game implements LevelIterator<Map.Entry<String, GameLevel>> {
     }
     
     public boolean isGameEnded() {
-        return !hasNextLevel();
+        return !hasNextLevel() && level.isLevelEnded();
     }
 
     public boolean isIsBetterHighScore() {

@@ -49,13 +49,11 @@ public class Dragon extends InteractiveActor implements RandomMovable, Enemy {
     public void act(CyclicBarrier barrier) {
         Thread t1 = new Thread(() -> {
             synchronized(container) {
-                while (container.getPlayer().isAlive()) {
+                while (container.getPlayer().isAlive() && !container.isLevelEnded()) {
                     try {
                         attack(container);
                         TimeUnit.MILLISECONDS.sleep(500);
                         move(false);
-//                        System.out.println("container: \n" + container.levelMap());
-//                        System.out.println("player alive? " + container.getPlayer().isAlive());
                         barrier.await();
                     } catch (InterruptedException | BrokenBarrierException ex) {
                         Logger.getLogger(Dragon.class.getName()).log(Level.SEVERE, null, ex);

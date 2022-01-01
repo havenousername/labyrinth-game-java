@@ -35,7 +35,6 @@ public abstract class Database<DataType> {
         data = new ArrayList<>();
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-            System.out.println("Connection: " + url + '/' + name);
             this.connection = DriverManager.getConnection(url + '/' + name);
         } catch (SQLException ex) {
             System.out.println("Connection failed to establish. Please try again later");
@@ -55,6 +54,7 @@ public abstract class Database<DataType> {
     }
     
     protected void loadData(FunctionResultDatabase<DataType> call, String sql) {
+       data.clear();
        try (Statement statement = connection.createStatement()) {
             ResultSet rs = statement.executeQuery(sql);
             while (rs.next()) {

@@ -3,21 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package labyrinth;
-
-import labyrinth.view.GameWindow;
+package labyrinth.database;
 
 /**
  *
  * @author andreicristea
  */
-public class Labyrinth {
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        new GameWindow();
-    }
-    
+public interface Updatable<T, B> {
+    public int update(T stored, B updateBy);
 }
