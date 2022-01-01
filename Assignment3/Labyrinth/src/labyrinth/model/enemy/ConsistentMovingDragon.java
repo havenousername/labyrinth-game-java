@@ -3,14 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package labyrinth.model;
+package labyrinth.model.enemy;
 
 /**
  *
  * @author andreicristea
  */
-public interface Movable {
-    void move(int x,int y);
-    void move(Direction direction);
-    Position getPosition();
+public class ConsistentMovingDragon {
+    
 }

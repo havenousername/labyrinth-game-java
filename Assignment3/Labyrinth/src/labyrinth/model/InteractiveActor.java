@@ -9,7 +9,7 @@ package labyrinth.model;
  *
  * @author andreicristea
  */
-public abstract class InteractiveActor implements Movable {
+public abstract class InteractiveActor implements MovableActor {
     protected String name;
     protected Position position;
     

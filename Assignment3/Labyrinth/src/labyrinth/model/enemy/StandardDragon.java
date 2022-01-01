@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package labyrinth.model;
+package labyrinth.model.enemy;
 
 import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
@@ -12,28 +12,38 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import labyrinth.model.Dieable;
+import labyrinth.model.Direction;
+import labyrinth.model.DirectionBound;
+import labyrinth.model.GameLevel;
+import labyrinth.model.InteractiveActor;
+import labyrinth.model.PopulatedLevel;
+import labyrinth.model.Position;
+import labyrinth.model.RandomMovable;
 
 /**
  *
  * @author andreicristea
  */
-public class Dragon extends InteractiveActor implements RandomMovable, Enemy {
+public class StandardDragon extends InteractiveActor implements AttackingActiveEnemy, RandomMovable<Void> {
     private final GameLevel container;
-    public Dragon(GameLevel container) {
+    private Direction direction;
+    public StandardDragon(GameLevel container) {
         super("Dragon", new Position(0,0));
         this.container = container;
     }
     
-    public Dragon(Position position, GameLevel container) {
+    public StandardDragon(Position position, GameLevel container) {
         super("Dragon", position);
         this.container = container;
     }
     
-    public Dragon(String name, Position position, GameLevel container) {
+    public StandardDragon(String name, Position position, GameLevel container) {
         super(name, position);
         this.container = container;
     }
     
+    @Override
     public void initialMove() {
         move(true);
     }
@@ -41,11 +51,29 @@ public class Dragon extends InteractiveActor implements RandomMovable, Enemy {
     private void move(boolean isInitial) {
         var moved = false;
         while (!moved) {
-            var position = isInitial ? randomPosition() : this.position.translate(nextRandom());
+            if (direction == null) {
+               nextRandom();
+            } 
+            
+            var position = isInitial ? randomPosition() 
+                    : this.position.translate(direction);
+            if (!isInitial) {
+               var isPositionWall = 
+                       container.getCell(position.getX(), position.getY())
+                               .getLevel().level == labyrinth.model.Level.WALL.level;
+               var isPositionExit = container.getCell(position.getX(), 
+                       position.getY()).getLevel().level == 
+                       labyrinth.model.Level.EXIT.level;
+               if (isPositionExit || isPositionWall) {
+                   direction = null;
+                   moved = false;
+               }
+            }
             moved = container.move(this, position);
         }
     }
     
+    @Override
     public void act(CyclicBarrier barrier) {
         Thread t1 = new Thread(() -> {
             synchronized(container) {
@@ -56,7 +84,7 @@ public class Dragon extends InteractiveActor implements RandomMovable, Enemy {
                         move(false);
                         barrier.await();
                     } catch (InterruptedException | BrokenBarrierException ex) {
-                        Logger.getLogger(Dragon.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(StandardDragon.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }
@@ -65,9 +93,10 @@ public class Dragon extends InteractiveActor implements RandomMovable, Enemy {
         t1.start();
     }
     
-    public void attack(GameLevel container) {
-        if (container.hasEnemyPlayerVisibleCells()) {
-            kill(container.getPlayer());
+    @Override
+    public void attack(PopulatedLevel level) {
+        if (level.hasEnemyPlayerVisibleCells()) {
+            kill(level.getPlayer());
         }
     }
     
@@ -79,25 +108,23 @@ public class Dragon extends InteractiveActor implements RandomMovable, Enemy {
     }
     
     @Override
-    public Direction nextRandom() {
+    public Void nextRandom() {
         Random random = new Random();
         int randomDirOne = random.nextInt(DirectionBound.UPPER_BOUND.bound - DirectionBound.LOWER_BOUND.bound + 1) + DirectionBound.LOWER_BOUND.bound;
         int randomDirTwo = random.nextInt(DirectionBound.UPPER_BOUND.bound - DirectionBound.LOWER_BOUND.bound + 1) + DirectionBound.LOWER_BOUND.bound;
-        
+
         boolean correntDirection = false;
-        Direction direction;
-        
+
         while (!correntDirection) {
             try {
                 direction = Direction.getDirection(randomDirOne, randomDirTwo);
-                return direction;
+                correntDirection = true;
             } catch (IllegalArgumentException ex) {
                 randomDirOne = random.nextInt(DirectionBound.UPPER_BOUND.bound - DirectionBound.LOWER_BOUND.bound + 1) + DirectionBound.LOWER_BOUND.bound;
                 randomDirTwo = random.nextInt(DirectionBound.UPPER_BOUND.bound - DirectionBound.LOWER_BOUND.bound + 1) + DirectionBound.LOWER_BOUND.bound;
             }
         }
-        
-        return Direction.DOWN;
+        return null;
     }
 
     @Override
@@ -108,8 +135,8 @@ public class Dragon extends InteractiveActor implements RandomMovable, Enemy {
     }
     
     @Override
-    public Dragon clone() throws CloneNotSupportedException {
-        return new Dragon(name, position, container);
+    public StandardDragon clone() throws CloneNotSupportedException {
+        return new StandardDragon(name, position, container);
     }
 
     public GameLevel getContainer() {
@@ -119,5 +146,10 @@ public class Dragon extends InteractiveActor implements RandomMovable, Enemy {
     @Override
     public labyrinth.model.Level getFieldType() {
         return labyrinth.model.Level.ENEMY;
+    }
+
+    @Override
+    public PopulatedLevel getLevel() {
+        return this.container;
     }
 }

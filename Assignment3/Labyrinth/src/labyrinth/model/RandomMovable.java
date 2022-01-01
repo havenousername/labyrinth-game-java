@@ -9,7 +9,7 @@ package labyrinth.model;
  *
  * @author andreicristea
  */
-public interface RandomMovable extends Movable {
+public interface RandomMovable<T> extends Movable {
     Position randomPosition();
-    Direction nextRandom();
+    T nextRandom();
 }

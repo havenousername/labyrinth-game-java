@@ -9,6 +9,6 @@ package labyrinth.model;
  *
  * @author andreicristea
  */
-public interface Enemy {
-    void kill(Dieable dieable);
+public interface MovableActor extends Movable {
+    public Level getFieldType();
 }

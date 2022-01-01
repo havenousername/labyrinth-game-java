@@ -17,28 +17,32 @@ import labyrinth.model.cameravision.CameraBottomOverflow;
 import labyrinth.model.cameravision.CameraLeftOverflow;
 import labyrinth.model.cameravision.CameraRightOverflow;
 import labyrinth.model.cameravision.CameraTopOverflow;
+import labyrinth.model.enemy.AttackingActiveEnemy;
+import labyrinth.model.enemy.StandardDragon;
+import labyrinth.model.enemy.Enemy;
+import labyrinth.model.enemy.RandomMovingDragon;
 
 /**
  *
  * @author andreicristea
  */
-public class GameLevel implements Comparable<GameLevel> {
+public class GameLevel implements Comparable<GameLevel>, PopulatedLevel {
     public static final int PLAYER_VISION = 3;
     public static final int DRAGON_VISION = 1;
     public static final int CAMERA_VISION = 8;
     private final GameId gameId;
     private final int rows, cols;
     private final LevelCell[][] levelCells;
-    private Player player;
-    private Dragon dragon;
+    private final Player player;
+    private AttackingActiveEnemy dragon;
     private Position levelExitPosition;
     private Position playerPosition;
-    private List<List<String>> gameLevelOrigin;
+    private final List<List<String>> gameLevelOrigin;
     
     public GameLevel(Player player, GameId gameId) {
         // guest actors
         this.player = player;
-        dragon = new Dragon(this);
+        dragon = new RandomMovingDragon(new StandardDragon(this));
         
         this.gameId = gameId;
         this.gameLevelOrigin = this.gameId.getLevel();
@@ -57,7 +61,7 @@ public class GameLevel implements Comparable<GameLevel> {
     }
     
     public void reset() {
-        this.dragon = new Dragon(this);
+        this.dragon = new StandardDragon(this);
         generateLevels(gameLevelOrigin);
     }
     
@@ -117,7 +121,8 @@ public class GameLevel implements Comparable<GameLevel> {
         return j >= y - width;
     }
     
-    private boolean isPlayerBetweenPosition(int i, int j, int width) {
+    @Override
+    public boolean isPlayerBetweenPosition(int i, int j, int width) {
         return isBetweenPosition(i, j, player.getPosition().getX(), player.getPosition().getY(), width);
     }
     
@@ -185,12 +190,14 @@ public class GameLevel implements Comparable<GameLevel> {
         return getPlayerVisibleCells().contains(lc);
     }
     
+    @Override
     public boolean hasEnemyPlayerVisibleCells() {
         return getPlayerAttackCells().stream().filter(levelCell -> levelCell.getLevel().equals(Level.ENEMY)).count() > 0;
     }
     
-    public boolean move(InteractiveActor actor, Position newPosition) {
-        if (levelCells[newPosition.getX()][newPosition.getY()].getLevel().level == '#') {
+    @Override
+    public boolean move(MovableActor actor, Position newPosition) {
+        if (levelCells[newPosition.getX()][newPosition.getY()].getLevel().level == Level.EMPTY.level) {
             return false;
         }
         levelCells[actor.getPosition().getX()][actor.getPosition().getY()].setLevel(Level.EMPTY);
@@ -203,8 +210,8 @@ public class GameLevel implements Comparable<GameLevel> {
         return move(this.player, direction);
     }
     
-    public boolean move(InteractiveActor actor, Direction direction) {
-        return move(actor, actor.position.translate(direction));
+    public boolean move(MovableActor actor, Direction direction) {
+        return move(actor, actor.getPosition().translate(direction));
     }
     
     public boolean isPlayerDied() {
@@ -252,11 +259,13 @@ public class GameLevel implements Comparable<GameLevel> {
         return levelCells;
     }
 
+    @Override
     public Player getPlayer() {
         return player;
     }
 
-    public Dragon getDragon() {
+    @Override
+    public Enemy getEnemy() {
         return dragon;
     }
     
@@ -268,6 +277,7 @@ public class GameLevel implements Comparable<GameLevel> {
         return this.player.getPosition().equals(levelExitPosition);
     }
     
+    @Override
     public boolean isLevelEnded() {
         return isLevelWin() || isLevelOver();
     }

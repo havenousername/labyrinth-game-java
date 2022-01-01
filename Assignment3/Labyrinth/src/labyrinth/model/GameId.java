@@ -27,6 +27,7 @@ public class GameId implements Comparable<GameId> {
         this.level = level;
         String newStr = pattern.replace("\n", "");
         final String regex = "^(?=.*\\.)(?=.*\\#)(?=.*P)(?=.*E)(?=.*\\ )[.#PE ]{" + newStr.length() + "}$";
+//        System.out.println(regex);
         final Pattern pat = Pattern.compile(regex, Pattern.MULTILINE);
         if (!pat.matcher(newStr).matches()) {
             throw new IllegalArgumentException("Pattern does not match provided regex");
