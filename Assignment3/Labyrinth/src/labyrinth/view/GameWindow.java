@@ -163,6 +163,7 @@ public class GameWindow extends JFrame {
     private void initMainWindow() throws IOException {
         game.activateNextLevel();
         game.activateLevel(dragonAttack);
+        System.out.println("Current level: " + game.levelMap() + " " + game.getCurrentLevel().getGameId().getId());
         
         refreshAfterDragonAttack();
         
@@ -215,7 +216,7 @@ public class GameWindow extends JFrame {
                 }
             }
         });
-        setResizable(false);
+//        setResizable(false);
         setLocationRelativeTo(null);
         setVisible(true);
     }

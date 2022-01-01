@@ -18,10 +18,11 @@ import java.util.stream.Stream;
 public class GameId implements Comparable<GameId> {
     public final String difficulty;
     public final int level;
+    public final LevelSrcs levelSrcs;
     private final String pattern;
     
     
-    public GameId(String difficulty, final int level, final String pattern) {
+    public GameId(String difficulty, final int level, final String pattern, LevelSrcs levelSrcs) {
         this.difficulty = difficulty;
         this.level = level;
         String newStr = pattern.replace("\n", "");
@@ -31,6 +32,7 @@ public class GameId implements Comparable<GameId> {
             throw new IllegalArgumentException("Pattern does not match provided regex");
         }
         this.pattern = pattern;
+        this.levelSrcs = levelSrcs;
     }
     
     public List<List<String>> getLevel() {
@@ -56,6 +58,8 @@ public class GameId implements Comparable<GameId> {
     public static String getDifficulty(String id) {
         return id.split(" ")[0];
     }
+    
+    
     
     @Override
     public int hashCode() {

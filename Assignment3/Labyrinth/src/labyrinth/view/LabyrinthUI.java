@@ -15,7 +15,6 @@ import labyrinth.model.Game;
 import resource.ResourceLoader;
 import labyrinth.model.Level;
 import labyrinth.model.LevelCell;
-import labyrinth.model.Position;
 
 /**
  *
@@ -28,12 +27,11 @@ public class LabyrinthUI extends JPanel {
     
     public LabyrinthUI(Game game) throws IOException {
         this.game = game;
-//        System.out.println(game.levelMap());
-        dragonImage = ResourceLoader.loadImage("resource/dragon-level-1.png");
-        grass = ResourceLoader.loadImage("resource/grass-level-1.png");
-        grassHidden = ResourceLoader.loadImage("resource/grass-level-1_hidden.png");
-        wall = ResourceLoader.loadImage("resource/wall-level-1.jpeg");
-        wallHidden = ResourceLoader.loadImage("resource/wall-level-1_hidden.png");
+        dragonImage = ResourceLoader.loadImage(game.getCurrentLevel().getGameId().levelSrcs.getDragon());
+        grass = ResourceLoader.loadImage(game.getCurrentLevel().getGameId().levelSrcs.getGrass());
+        grassHidden = ResourceLoader.loadImage(game.getCurrentLevel().getGameId().levelSrcs.getGrassHidden());
+        wall = ResourceLoader.loadImage(game.getCurrentLevel().getGameId().levelSrcs.getWall());
+        wallHidden = ResourceLoader.loadImage(game.getCurrentLevel().getGameId().levelSrcs.getWallHidden());
         playerImage = ResourceLoader.loadImage("resource/player-new.png");
     }
     

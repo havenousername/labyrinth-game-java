@@ -184,4 +184,8 @@ public class Game implements LevelIterator<Map.Entry<String, GameLevel>> {
         loadLevel(nextLevel().getValue());
         return true;
     }
+
+    public Map<String, GameLevel> getGameLevels() {
+        return gameLevels;
+    }
 }

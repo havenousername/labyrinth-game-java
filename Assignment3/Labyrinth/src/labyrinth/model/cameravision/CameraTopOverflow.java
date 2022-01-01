@@ -20,7 +20,7 @@ public class CameraTopOverflow extends CameraOverflow {
 
     @Override
     protected int getOverflow() {
-        return Math.abs(( position.getX() + shift) > cellLength - 2 
+        return Math.abs(( position.getX() + shift) >= cellLength - 1
                 ?  cellLength - 2 - (position.getX() + shift) 
                 : 0);
     }

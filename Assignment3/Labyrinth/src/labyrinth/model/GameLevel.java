@@ -146,7 +146,7 @@ public class GameLevel implements Comparable<GameLevel> {
     public List<LevelCell> getPlayerAttackCells() {
         return getPlayerSurroundingCells(DRAGON_VISION);
     }
-    
+        
     public LevelCell[][] getCameraVisionCells() {
         Deque<List<LevelCell>> cells = new LinkedList<>();
         Position playerPosition = player.getPosition();
@@ -170,7 +170,10 @@ public class GameLevel implements Comparable<GameLevel> {
                     cellsLocal.add(levelCells[i][j]);
                 }
             }
-            cells.add(cellsLocal);
+            
+            if (!cellsLocal.isEmpty()) {
+                cells.add(cellsLocal);
+            }
         }
         
         return cells.stream()
@@ -274,7 +277,7 @@ public class GameLevel implements Comparable<GameLevel> {
         for (var levelCellRow : levelCells) {
             for (var levelCellItem : levelCellRow) {
                 if (levelCellItem == null) {
-                    throw new NullPointerException("Game levels rows are not the same size");
+                    throw new NullPointerException("Game levels rows are not the same size for level with id  " + gameId.getId());
                 }
                 levelStrBuilder.append(levelCellItem.getLevel().level);
             }

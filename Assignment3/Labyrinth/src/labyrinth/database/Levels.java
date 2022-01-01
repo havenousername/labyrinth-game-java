@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import labyrinth.model.LevelSrcs;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -29,7 +30,20 @@ public final class Levels extends Database<GameId> {
             int level = rs.getInt("level");
             String difficulty = rs.getString("difficulty");
             String pattern = rs.getString("pattern");
-            return new GameId(difficulty, level, pattern);
+            System.out.println("Pattern: " + pattern);
+            
+            // create levels srcs
+            String dragonSrc = rs.getString("dragon_src");
+            String wallSrc = rs.getString("wall_src");
+            String wallHiddenSrc = rs.getString("wall_src_hidden");
+            String grassSrc = rs.getString("grass_src");
+            String grassHiddenSrc = rs.getString("grass_src_hidden");
+            return new GameId(
+                    difficulty, 
+                    level, 
+                    pattern,
+                    new LevelSrcs(dragonSrc, grassSrc, grassHiddenSrc, wallSrc, wallHiddenSrc)
+            );
         }, "SELECT * FROM " + tableName + " order by difficulty, level");
     }
 
@@ -42,7 +56,13 @@ public final class Levels extends Database<GameId> {
                     "id INTEGER NOT NULL PRIMARY KEY, " +
                     "level INTEGER NOT NULL, " + 
                     "difficulty VARCHAR(20) DEFAULT 'EASY', " +
-                    "pattern VARCHAR(512) NOT NULL) ";
+                    "pattern VARCHAR(10000) NOT NULL," + 
+                    "dragon_src VARCHAR(100) NOT NULL ," +
+                    "wall_src VARCHAR(100) NOT NULL ," +
+                    "wall_src_hidden VARCHAR(100) NOT NULL ," +
+                    "grass_src VARCHAR(100) NOT NULL ," +
+                    "grass_src_hidden VARCHAR(100) NOT NULL)"
+                    ;
                 return super.createTable(sql);
             }
         } catch (SQLException ex) {

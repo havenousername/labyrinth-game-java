@@ -18,9 +18,9 @@ public class CameraBottomOverflow extends CameraOverflow {
 
     @Override
     protected int getOverflow() {
-        return Math.abs((position.getX() - shift) <= 0 ? 
-                Math.abs(position.getX() - shift) + 1
-                : 0);
+        return Math.abs((position.getX() - shift - 1) < 0 ? 
+                Math.abs(position.getX() - shift - 1) 
+                : 1);
     }
     
 }
