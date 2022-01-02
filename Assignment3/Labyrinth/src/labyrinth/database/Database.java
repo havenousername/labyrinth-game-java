@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,7 +33,7 @@ public abstract class Database<DataType> {
         this.url = url;
         this.name = name;
         this.tableName = tableName;
-        data = new ArrayList<>();
+        data = Collections.synchronizedList(new ArrayList<>());
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
             this.connection = DriverManager.getConnection(url + '/' + name);

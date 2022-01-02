@@ -163,9 +163,6 @@ public class GameWindow extends JFrame {
     private void initMainWindow() throws IOException {
         game.activateNextLevel();
         game.activateLevel(dragonAttack);
-        System.out.println("Current level: " + game.levelMap() + " " + game.getCurrentLevel().getGameId().getId());
-        
-        refreshAfterDragonAttack();
         
         setTitle("Labyrinth");
         setSize((GameLevel.CAMERA_VISION + 1) * LabyrinthUI.TILE_SIZE, (GameLevel.CAMERA_VISION + 2) * LabyrinthUI.TILE_SIZE + 50);
@@ -177,6 +174,7 @@ public class GameWindow extends JFrame {
             labyrinthUI = new LabyrinthUI(game);
             add(labyrinthUI, BorderLayout.CENTER);
         } catch (IOException ex) {}
+        refreshAfterDragonAttack();
         // key adapter
         addKeyListener(new KeyAdapter() {
             @Override

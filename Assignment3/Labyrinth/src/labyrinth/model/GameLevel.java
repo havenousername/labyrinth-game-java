@@ -33,7 +33,7 @@ public class GameLevel implements Comparable<GameLevel>, PopulatedLevel {
     private final GameId gameId;
     private final int rows, cols;
     private final LevelCell[][] levelCells;
-    private Player player;
+    private final Player player;
     private AttackingActiveEnemy dragon;
     private Position levelExitPosition;
     private Position playerPosition;
@@ -42,7 +42,7 @@ public class GameLevel implements Comparable<GameLevel>, PopulatedLevel {
     public GameLevel(Player player, GameId gameId) {
         // guest actors
         this.player = player;
-        dragon = new StandardDragon(this);
+        
         
         this.gameId = gameId;
         this.gameLevelOrigin = this.gameId.getLevel();
@@ -52,7 +52,8 @@ public class GameLevel implements Comparable<GameLevel>, PopulatedLevel {
         cols = gameLevelOrigin.size();
         levelCells = new LevelCell[cols][rows];
         generateLevels(gameLevelOrigin);
-        dragon.initialMove();
+//        dragon = new StandardDragon(this);
+//        dragon.initialMove();
     }
     
     public void activate(CyclicBarrier barrier) {
@@ -85,8 +86,18 @@ public class GameLevel implements Comparable<GameLevel>, PopulatedLevel {
                         level = Level.EXIT;
                         levelExitPosition = new Position(i, j);
                     }
-                    case " ", "E" -> {
+                    case " " -> {
                         level = Level.EMPTY;
+                    }
+                    case "E" -> {
+                        level = Level.EMPTY;
+                        dragon = new StandardDragon(this);
+                        System.out.println(dragon.getClass().getName());
+                    }
+                    case "D" -> {
+                        level = Level.EMPTY;
+                        dragon = new RandomMovingDragon( new StandardDragon(this));
+                        System.out.println(dragon.getClass().getName());
                     }
                     default -> {
                         level = Level.EMPTY;
@@ -95,6 +106,8 @@ public class GameLevel implements Comparable<GameLevel>, PopulatedLevel {
                 levelCells[i][j] = new LevelCell(level, i, j);
             }
         }
+        dragon.initialMove();
+
     }
     
     private boolean isBetweenPosition(int i, int j, int x, int y, int width) {
