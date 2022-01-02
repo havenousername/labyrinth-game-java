@@ -25,6 +25,8 @@ import javax.swing.WindowConstants;
 import labyrinth.model.Direction;
 import labyrinth.model.Game;
 import labyrinth.model.GameLevel;
+import labyrinth.model.Highscore;
+import labyrinth.model.LimitedSelect;
 
 /**
  *
@@ -139,7 +141,7 @@ public class GameWindow extends JFrame {
         JMenuItem menuHighscores = new JMenuItem(new AbstractAction("Show High scores") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new HighscoreWindow(game.getHighscores(), GameWindow.this);
+                new HighscoreWindow(LimitedSelect.<Highscore>getFirstN(game.getHighscores(), 10), GameWindow.this);
             }
         });
         

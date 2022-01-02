@@ -50,7 +50,7 @@ public class LevelsHighScore extends Database<Highscore> implements Insertable<H
             String difficulty = rs.getString("difficulty");
             String name = rs.getString("name");
             return new Highscore(difficulty, totalLevels, lastLevel, name);
-        }, "SELECT * from " + tableName + " order by name, difficulty");
+        }, "SELECT * from " + tableName + " order by total_levels DESC");
     }
 
     @Override
@@ -73,8 +73,6 @@ public class LevelsHighScore extends Database<Highscore> implements Insertable<H
 
     @Override
     public int update(Highscore stored, String name) {
-        
-        System.out.println("Update");
         String sql = "UPDATE " + tableName + " SET " +
                 "difficulty = ?," +
                 "last_level = ?," + 

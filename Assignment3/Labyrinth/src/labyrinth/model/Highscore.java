@@ -72,4 +72,9 @@ public class Highscore {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "Highscore{" + "difficulty=" + difficulty + ", totalLevels=" + totalLevels + ", lastLevel=" + lastLevel + ", name=" + name + '}';
+    }
 }

@@ -31,8 +31,6 @@ public final class LabyrinthUI extends JPanel {
     }
     
     public void setImages() throws IOException {
-        System.out.println("Srcs  " + game.getCurrentLevel().getGameId().getId());
-        System.out.println("Srcs  " + game.getCurrentLevel().getGameId().levelSrcs.getDragon());
         dragonImage = ResourceLoader.loadImage(game.getCurrentLevel().getGameId().levelSrcs.getDragon());
         grass = ResourceLoader.loadImage(game.getCurrentLevel().getGameId().levelSrcs.getGrass());
         grassHidden = ResourceLoader.loadImage(game.getCurrentLevel().getGameId().levelSrcs.getGrassHidden());

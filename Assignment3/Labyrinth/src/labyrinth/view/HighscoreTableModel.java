@@ -7,6 +7,7 @@ package labyrinth.view;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 import javax.swing.table.AbstractTableModel;
 import labyrinth.model.Highscore;
 
@@ -19,11 +20,11 @@ public class HighscoreTableModel extends AbstractTableModel {
     private final List<String> columnNames = new ArrayList();
     
     HighscoreTableModel(List<Highscore> highscores) {
-        this.highscores = highscores;
-        columnNames.add("name");
-        columnNames.add("difficulty");
-        columnNames.add("completed levels");
-        columnNames.add("last level");
+        this.highscores = highscores.stream().limit(10).collect(Collectors.toList());
+        columnNames.add("Name");
+        columnNames.add("Difficulty");
+        columnNames.add("Completed levels");
+        columnNames.add("Last level");
     }
     
     @Override
@@ -44,10 +45,14 @@ public class HighscoreTableModel extends AbstractTableModel {
            case 0 -> obj = highscore.getName();
            case 1 -> obj = highscore.getDifficulty();
            case 2 -> obj = highscore.getTotalLevels();
-           case 3 -> obj = highscore.getTotalLevels();
+           case 3 -> obj = highscore.getLastLevel();
            default -> obj = highscore.getName();
        }
        return obj;
     }
     
+    @Override
+    public String getColumnName(int i) {
+        return columnNames.get(i);
+    }
 }

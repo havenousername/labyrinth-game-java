@@ -30,7 +30,6 @@ public final class Levels extends Database<GameId> {
             int level = rs.getInt("level");
             String difficulty = rs.getString("difficulty");
             String pattern = rs.getString("pattern");
-//            System.out.println("Pattern: " + pattern);
             
             // create levels srcs
             String dragonSrc = rs.getString("dragon_src");

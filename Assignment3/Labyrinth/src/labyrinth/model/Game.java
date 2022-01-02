@@ -79,7 +79,6 @@ public class Game implements LevelIterator<Map.Entry<String, GameLevel>> {
     public void recordHighscore() {
         Highscore highscore = new Highscore(level.getGameId().difficulty, countLevels, level.getGameId().level, player.name);
         boolean hasInDatabase = highscoreDatabase.getData().stream().filter((highScore) -> highScore.getName().equals(player.getName())).count() > 0;
-        System.out.println("Has in database " + hasInDatabase);
         if (hasInDatabase) {
             highscoreDatabase.update(highscore, highscore.getName());
         } else {
@@ -102,7 +101,6 @@ public class Game implements LevelIterator<Map.Entry<String, GameLevel>> {
     public void loadLevel(GameLevel gameLevel) {
         countLevels++;
         this.level = gameLevel;
-        System.out.println("Level load " + level.getGameId().getId());
         this.isBetterHighScore = false;
     }
     

@@ -40,7 +40,6 @@ public class Position {
     }
     
     public Position translate(Direction d) {
-//        System.out.println("Translate later: x: " +  d.x.bound  + ", y: " + d.y.bound);
         return new Position(x + d.x.bound, y + d.y.bound);
     }
 
