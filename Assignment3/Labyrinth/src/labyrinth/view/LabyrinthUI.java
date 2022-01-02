@@ -20,19 +20,25 @@ import labyrinth.model.LevelCell;
  *
  * @author andreicristea
  */
-public class LabyrinthUI extends JPanel {
+public final class LabyrinthUI extends JPanel {
     public static final int TILE_SIZE = 64;
     private final Game game;
-    private final Image dragonImage,  grass, grassHidden, wall, wallHidden, playerImage;
+    private Image dragonImage,  grass, grassHidden, wall, wallHidden, playerImage;
     
     public LabyrinthUI(Game game) throws IOException {
         this.game = game;
+        setImages();
+    }
+    
+    public void setImages() throws IOException {
+        System.out.println("Srcs  " + game.getCurrentLevel().getGameId().getId());
+        System.out.println("Srcs  " + game.getCurrentLevel().getGameId().levelSrcs.getDragon());
         dragonImage = ResourceLoader.loadImage(game.getCurrentLevel().getGameId().levelSrcs.getDragon());
         grass = ResourceLoader.loadImage(game.getCurrentLevel().getGameId().levelSrcs.getGrass());
         grassHidden = ResourceLoader.loadImage(game.getCurrentLevel().getGameId().levelSrcs.getGrassHidden());
         wall = ResourceLoader.loadImage(game.getCurrentLevel().getGameId().levelSrcs.getWall());
         wallHidden = ResourceLoader.loadImage(game.getCurrentLevel().getGameId().levelSrcs.getWallHidden());
-        playerImage = ResourceLoader.loadImage("resource/player-new.png");
+        playerImage = ResourceLoader.loadImage(game.getCurrentLevel().getGameId().levelSrcs.getPlayer());
     }
     
     public boolean refresh() {

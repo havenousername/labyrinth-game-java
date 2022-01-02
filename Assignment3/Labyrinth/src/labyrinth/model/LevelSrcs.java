@@ -15,13 +15,15 @@ public class LevelSrcs {
     private final String grass;
     private final String wall;
     private final String wallHidden;
+    private final String player;
 
-    public LevelSrcs(String dragon, String grass, String grassHidden, String wall, String wallHidden) {
+    public LevelSrcs(String dragon, String grass, String grassHidden, String wall, String wallHidden, String player) {
         this.dragon = dragon;
         this.grassHidden = grassHidden;
         this.grass = grass;
         this.wall = wall;
         this.wallHidden = wallHidden;
+        this.player = player;
     }
 
     public String getDragon() {
@@ -42,6 +44,10 @@ public class LevelSrcs {
 
     public String getWallHidden() {
         return wallHidden;
+    }
+
+    public String getPlayer() {
+        return player;
     }
 
     @Override

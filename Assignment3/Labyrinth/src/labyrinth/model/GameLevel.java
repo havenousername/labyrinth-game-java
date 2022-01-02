@@ -92,12 +92,10 @@ public class GameLevel implements Comparable<GameLevel>, PopulatedLevel {
                     case "E" -> {
                         level = Level.EMPTY;
                         dragon = new StandardDragon(this);
-                        System.out.println(dragon.getClass().getName());
                     }
                     case "D" -> {
                         level = Level.EMPTY;
                         dragon = new RandomMovingDragon( new StandardDragon(this));
-                        System.out.println(dragon.getClass().getName());
                     }
                     default -> {
                         level = Level.EMPTY;

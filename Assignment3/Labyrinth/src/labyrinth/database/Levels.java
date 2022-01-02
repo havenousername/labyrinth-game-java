@@ -30,7 +30,7 @@ public final class Levels extends Database<GameId> {
             int level = rs.getInt("level");
             String difficulty = rs.getString("difficulty");
             String pattern = rs.getString("pattern");
-            System.out.println("Pattern: " + pattern);
+//            System.out.println("Pattern: " + pattern);
             
             // create levels srcs
             String dragonSrc = rs.getString("dragon_src");
@@ -38,11 +38,12 @@ public final class Levels extends Database<GameId> {
             String wallHiddenSrc = rs.getString("wall_src_hidden");
             String grassSrc = rs.getString("grass_src");
             String grassHiddenSrc = rs.getString("grass_src_hidden");
+            String playerSrc = rs.getString("player_src");
             return new GameId(
                     difficulty, 
                     level, 
                     pattern,
-                    new LevelSrcs(dragonSrc, grassSrc, grassHiddenSrc, wallSrc, wallHiddenSrc)
+                    new LevelSrcs(dragonSrc, grassSrc, grassHiddenSrc, wallSrc, wallHiddenSrc, playerSrc)
             );
         }, "SELECT * FROM " + tableName + " order by difficulty, level");
     }
@@ -61,7 +62,8 @@ public final class Levels extends Database<GameId> {
                     "wall_src VARCHAR(100) NOT NULL ," +
                     "wall_src_hidden VARCHAR(100) NOT NULL ," +
                     "grass_src VARCHAR(100) NOT NULL ," +
-                    "grass_src_hidden VARCHAR(100) NOT NULL)"
+                    "grass_src_hidden VARCHAR(100) NOT NULL ," + 
+                     "player_src VARCHAR(100) NOT NULL)"
                     ;
                 return super.createTable(sql);
             }

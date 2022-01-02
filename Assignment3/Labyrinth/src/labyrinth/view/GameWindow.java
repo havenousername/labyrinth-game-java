@@ -206,10 +206,15 @@ public class GameWindow extends JFrame {
                         System.out.println("Game ended");
                         gameEnded.set(true);
                     } else if (game.getCurrentLevel().isLevelEnded()) {
-                        gameEnded.set(false);
-                        game.activateNextLevel();
-                        game.activateLevel(dragonAttack);
-                        refreshAfterDragonAttack();
+                        try {
+                            gameEnded.set(false);
+                            game.activateNextLevel();
+                            game.activateLevel(dragonAttack);
+                            labyrinthUI.setImages();
+                            refreshAfterDragonAttack();
+                        } catch (IOException ex) {
+                            Logger.getLogger(GameWindow.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                 }
             }

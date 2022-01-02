@@ -102,6 +102,7 @@ public class Game implements LevelIterator<Map.Entry<String, GameLevel>> {
     public void loadLevel(GameLevel gameLevel) {
         countLevels++;
         this.level = gameLevel;
+        System.out.println("Level load " + level.getGameId().getId());
         this.isBetterHighScore = false;
     }
     
