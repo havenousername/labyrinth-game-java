@@ -33,7 +33,7 @@ public class GameLevel implements Comparable<GameLevel>, PopulatedLevel {
     private final GameId gameId;
     private final int rows, cols;
     private final LevelCell[][] levelCells;
-    private final Player player;
+    private Player player;
     private AttackingActiveEnemy dragon;
     private Position levelExitPosition;
     private Position playerPosition;
@@ -42,7 +42,7 @@ public class GameLevel implements Comparable<GameLevel>, PopulatedLevel {
     public GameLevel(Player player, GameId gameId) {
         // guest actors
         this.player = player;
-        dragon = new RandomMovingDragon(new StandardDragon(this));
+        dragon = new StandardDragon(this);
         
         this.gameId = gameId;
         this.gameLevelOrigin = this.gameId.getLevel();
@@ -197,7 +197,7 @@ public class GameLevel implements Comparable<GameLevel>, PopulatedLevel {
     
     @Override
     public boolean move(MovableActor actor, Position newPosition) {
-        if (levelCells[newPosition.getX()][newPosition.getY()].getLevel().level == Level.EMPTY.level) {
+        if (levelCells[newPosition.getX()][newPosition.getY()].getLevel().level == '#') {
             return false;
         }
         levelCells[actor.getPosition().getX()][actor.getPosition().getY()].setLevel(Level.EMPTY);
