@@ -45,7 +45,7 @@ public class Player extends InteractiveActor implements Dieable, Cloneable {
     }
 
     @Override
-    public Level getFieldType() {
-        return Level.PLAYER;
+    public LevelCellChar getFieldType() {
+        return LevelCellChar.PLAYER;
     }
 }

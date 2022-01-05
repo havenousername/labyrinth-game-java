@@ -10,5 +10,5 @@ package labyrinth.model;
  * @author andreicristea
  */
 public interface MovableActor extends Movable {
-    public Level getFieldType();
+    public LevelCellChar getFieldType();
 }

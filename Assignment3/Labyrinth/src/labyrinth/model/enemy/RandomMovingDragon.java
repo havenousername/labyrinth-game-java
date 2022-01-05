@@ -22,6 +22,7 @@ import labyrinth.model.RandomMovable;
  * @author andreicristea
  */
 public class RandomMovingDragon extends ActiveEnemyDecorator implements RandomMovable<Direction> {
+    private Thread action;
     public RandomMovingDragon(AttackingActiveEnemy enemy) {
         super(enemy);
     }
@@ -40,7 +41,7 @@ public class RandomMovingDragon extends ActiveEnemyDecorator implements RandomMo
     }
     
     private void execution(CyclicBarrier barrier) {
-        Thread t1 = new Thread(() -> {
+        action = new Thread(() -> {
             synchronized (getLevel()) {
                 while (getLevel().getPlayer().isAlive() && !getLevel().isLevelEnded()) {
                     try {
@@ -55,7 +56,16 @@ public class RandomMovingDragon extends ActiveEnemyDecorator implements RandomMo
             }
         });
         
-        t1.start();
+        action.start();
+    }
+    
+    @Override
+    public void stopAct() {
+        try {
+            this.action.join();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(RandomMovingDragon.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     @Override

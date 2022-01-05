@@ -179,7 +179,11 @@ public class Game implements LevelIterator<Map.Entry<String, GameLevel>> {
     public boolean activateNextLevel() {
         if (!hasNextLevel()) {
             return false;
-        } 
+        }
+        if (level != null) {
+            level.stopLevel();
+        }
+        
         loadLevel(nextLevel().getValue());
         return true;
     }

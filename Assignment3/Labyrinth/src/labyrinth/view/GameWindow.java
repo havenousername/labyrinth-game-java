@@ -54,6 +54,7 @@ public class GameWindow extends JFrame {
             playerReplay.accept(false);
         }
     };
+    private TimerPanel timerPanel;
     
     private CyclicBarrier dragonAttack; 
     private final AtomicBoolean gameEnded;
@@ -83,8 +84,14 @@ public class GameWindow extends JFrame {
         }
     };
     
+    private int timerPanelHeight = 40;
+    
     void replay() {
         game = new Game();
+        if (game.getCurrentLevel() != null) {
+            game.getCurrentLevel().stopLevel();
+        }
+        
         gameEnded.set(false);
         dragonAttack = new CyclicBarrier(2);
         
@@ -94,7 +101,13 @@ public class GameWindow extends JFrame {
         refreshAfterDragonAttack();
         playerNameDialog.setAcceptConsumer(true);
         
+        timerPanel.close();
+        setLayout(new BorderLayout());
+        
+        timerPanel = new TimerPanel(this, timerPanelHeight);
+        add(timerPanel, BorderLayout.NORTH);
         try {
+            this.remove(labyrinthUI);
             labyrinthUI = new LabyrinthUI(game);
             add(labyrinthUI, BorderLayout.CENTER);
         } catch (IOException ex) {}
@@ -166,12 +179,15 @@ public class GameWindow extends JFrame {
         game.activateNextLevel();
         game.activateLevel(dragonAttack);
         
+        timerPanel = new TimerPanel(this, timerPanelHeight);
         setTitle("Labyrinth");
-        setSize((GameLevel.CAMERA_VISION + 1) * LabyrinthUI.TILE_SIZE, (GameLevel.CAMERA_VISION + 2) * LabyrinthUI.TILE_SIZE + 50);
+        setSize((GameLevel.CAMERA_VISION + 1) * LabyrinthUI.TILE_SIZE, 
+                (GameLevel.CAMERA_VISION + 2) * LabyrinthUI.TILE_SIZE + 35 + timerPanelHeight);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         
         initMenu();
         setLayout(new BorderLayout());
+        add(timerPanel, BorderLayout.NORTH);
         try {
             labyrinthUI = new LabyrinthUI(game);
             add(labyrinthUI, BorderLayout.CENTER);
@@ -183,7 +199,7 @@ public class GameWindow extends JFrame {
             public void keyPressed(KeyEvent keyEvent) {
                 super.keyPressed(keyEvent);
                 if (!game.isLevelLoaded() || game.getCurrentLevel().isLevelOver() || game.isGameEnded()) {
-                    System.out.println("Game ended. You lost!");
+//                    System.out.println("Game ended. You lost!");
                     return;
                 }
                 int keyCode = keyEvent.getKeyCode();
@@ -201,17 +217,18 @@ public class GameWindow extends JFrame {
                         gameEnded.set(true);
                         gameOverDialog.setGameOverText("Game ended. You lost!");
                         gameOverDialog.setVisible(true);
-                        System.out.println("Game ended. You lost!");
+//                        System.out.println("Game ended. You lost!");
                     } else if (game.getCurrentLevel().isLevelWin() && game.isGameEnded()) {
                         gameOverDialog.setGameOverText("Game ended. You won!");
                         gameOverDialog.setVisible(true);
-                        System.out.println("Game ended");
+//                        System.out.println("Game ended");
                         gameEnded.set(true);
                     } else if (game.getCurrentLevel().isLevelEnded()) {
                         try {
                             gameEnded.set(false);
                             game.activateNextLevel();
                             game.activateLevel(dragonAttack);
+                            timerPanel.updateLevel();
                             labyrinthUI.setImages();
                             refreshAfterDragonAttack();
                         } catch (IOException ex) {
@@ -224,5 +241,13 @@ public class GameWindow extends JFrame {
 //        setResizable(false);
         setLocationRelativeTo(null);
         setVisible(true);
+    }
+
+    public AtomicBoolean getGameEnded() {
+        return gameEnded;
+    }
+
+    public Game getGame() {
+        return game;
     }
 }

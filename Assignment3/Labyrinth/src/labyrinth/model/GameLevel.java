@@ -73,32 +73,32 @@ public class GameLevel implements Comparable<GameLevel>, PopulatedLevel {
     private void generateLevels(List<List<String>> gameLevelChars) {
         for (var i = 0; i < gameLevelChars.size(); i++) {
             for (var j = 0; j < gameLevelChars.get(i).size(); j++) {
-                Level level;
+                LevelCellChar level;
                 switch(gameLevelChars.get(i).get(j)) {
                     case "P" -> { 
                         playerPosition = new Position(i, j);
-                        level = Level.PLAYER;
+                        level = LevelCellChar.PLAYER;
                     } 
                     case "#" -> {
-                        level = Level.WALL;
+                        level = LevelCellChar.WALL;
                     }
                     case "." -> {
-                        level = Level.EXIT;
+                        level = LevelCellChar.EXIT;
                         levelExitPosition = new Position(i, j);
                     }
                     case " " -> {
-                        level = Level.EMPTY;
+                        level = LevelCellChar.EMPTY;
                     }
                     case "E" -> {
-                        level = Level.EMPTY;
+                        level = LevelCellChar.EMPTY;
                         dragon = new StandardDragon(this);
                     }
                     case "D" -> {
-                        level = Level.EMPTY;
+                        level = LevelCellChar.EMPTY;
                         dragon = new RandomMovingDragon( new StandardDragon(this));
                     }
                     default -> {
-                        level = Level.EMPTY;
+                        level = LevelCellChar.EMPTY;
                     }
                 }
                 levelCells[i][j] = new LevelCell(level, i, j);
@@ -203,7 +203,7 @@ public class GameLevel implements Comparable<GameLevel>, PopulatedLevel {
     
     @Override
     public boolean hasEnemyPlayerVisibleCells() {
-        return getPlayerAttackCells().stream().filter(levelCell -> levelCell.getLevel().equals(Level.ENEMY)).count() > 0;
+        return getPlayerAttackCells().stream().filter(levelCell -> levelCell.getLevel().equals(LevelCellChar.ENEMY)).count() > 0;
     }
     
     @Override
@@ -211,7 +211,7 @@ public class GameLevel implements Comparable<GameLevel>, PopulatedLevel {
         if (levelCells[newPosition.getX()][newPosition.getY()].getLevel().level == '#') {
             return false;
         }
-        levelCells[actor.getPosition().getX()][actor.getPosition().getY()].setLevel(Level.EMPTY);
+        levelCells[actor.getPosition().getX()][actor.getPosition().getY()].setLevel(LevelCellChar.EMPTY);
         levelCells[newPosition.getX()][newPosition.getY()].setLevel(actor.getFieldType());
         actor.move(newPosition.x, newPosition.y);
         return true;
@@ -324,6 +324,10 @@ public class GameLevel implements Comparable<GameLevel>, PopulatedLevel {
     @Override
     public int compareTo(GameLevel o) {
         return gameId.compareTo(o.gameId);
+    }
+    
+    public void stopLevel() {
+        this.dragon.stopAct();
     }
 }
 

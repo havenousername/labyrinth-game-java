@@ -18,7 +18,7 @@ public abstract class InteractiveActor implements MovableActor {
         this.position = position;
     }
     
-    public abstract Level getFieldType();
+    public abstract LevelCellChar getFieldType();
    
 
     @Override

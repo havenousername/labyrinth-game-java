@@ -28,6 +28,7 @@ import labyrinth.model.RandomMovable;
 public class StandardDragon extends InteractiveActor implements AttackingActiveEnemy, RandomMovable<Void> {
     private final GameLevel container;
     private Direction direction;
+    private Thread action;
     public StandardDragon(GameLevel container) {
         super("Dragon", new Position(0,0));
         this.container = container;
@@ -60,10 +61,10 @@ public class StandardDragon extends InteractiveActor implements AttackingActiveE
             if (!isInitial) {
                var isPositionWall = 
                        container.getCell(position.getX(), position.getY())
-                               .getLevel().level == labyrinth.model.Level.WALL.level;
+                               .getLevel().level == labyrinth.model.LevelCellChar.WALL.level;
                var isPositionExit = container.getCell(position.getX(), 
                        position.getY()).getLevel().level == 
-                       labyrinth.model.Level.EXIT.level;
+                       labyrinth.model.LevelCellChar.EXIT.level;
                if (isPositionExit || isPositionWall) {
                    direction = null;
                    moved = false;
@@ -75,7 +76,7 @@ public class StandardDragon extends InteractiveActor implements AttackingActiveE
     
     @Override
     public void act(CyclicBarrier barrier) {
-        Thread t1 = new Thread(() -> {
+        action = new Thread(() -> {
             synchronized(container) {
                 while (container.getPlayer().isAlive() && !container.isLevelEnded()) {
                     try {
@@ -90,7 +91,7 @@ public class StandardDragon extends InteractiveActor implements AttackingActiveE
             }
         });
         
-        t1.start();
+        action.start();
     }
     
     @Override
@@ -144,12 +145,21 @@ public class StandardDragon extends InteractiveActor implements AttackingActiveE
     }
     
     @Override
-    public labyrinth.model.Level getFieldType() {
-        return labyrinth.model.Level.ENEMY;
+    public labyrinth.model.LevelCellChar getFieldType() {
+        return labyrinth.model.LevelCellChar.ENEMY;
     }
 
     @Override
     public PopulatedLevel getLevel() {
         return this.container;
+    }
+
+    @Override
+    public void stopAct() {
+        try {
+            action.join();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(StandardDragon.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

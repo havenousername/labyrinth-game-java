@@ -29,7 +29,7 @@ public class GameId implements Comparable<GameId> {
         final String regex = "^(?=.*\\.)(?=.*\\#)(?=.*P)(?=.*(E|D))(?=.*\\ )[.#P(E|D) ]{" + newStr.length() + "}$";
         final Pattern pat = Pattern.compile(regex, Pattern.MULTILINE);
         if (!pat.matcher(newStr).matches()) {
-            throw new IllegalArgumentException("Pattern does not match provided regex");
+            throw new IllegalArgumentException("Pattern for id " + getId() +" does not match provided regex");
         }
         this.pattern = pattern;
         this.levelSrcs = levelSrcs;

@@ -44,7 +44,7 @@ public final class Levels extends Database<GameId> {
                     pattern,
                     new LevelSrcs(dragonSrc, grassSrc, grassHiddenSrc, wallSrc, wallHiddenSrc, playerSrc)
             );
-        }, "SELECT * FROM " + tableName + " order by difficulty, level");
+        }, "SELECT * FROM " + tableName + " order by difficulty ASC, level");
     }
 
     @Override

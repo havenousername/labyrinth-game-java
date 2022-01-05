@@ -16,6 +16,7 @@ import labyrinth.model.PopulatedLevel;
 public interface AttackingActiveEnemy extends MovableActor, Enemy  {
     public void attack(PopulatedLevel level);
     public void act(CyclicBarrier barrier);
+    public void stopAct();
     public void initialMove();
     public PopulatedLevel getLevel();
 }

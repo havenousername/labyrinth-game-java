@@ -8,7 +8,7 @@ package labyrinth.model.enemy;
 import java.util.concurrent.CyclicBarrier;
 import labyrinth.model.Dieable;
 import labyrinth.model.Direction;
-import labyrinth.model.Level;
+import labyrinth.model.LevelCellChar;
 import labyrinth.model.PopulatedLevel;
 import labyrinth.model.Position;
 
@@ -54,7 +54,7 @@ public class ActiveEnemyDecorator implements AttackingActiveEnemy {
     }
 
     @Override
-    public Level getFieldType() {
+    public LevelCellChar getFieldType() {
         return this.enemy.getFieldType();
     }
 
@@ -66,5 +66,10 @@ public class ActiveEnemyDecorator implements AttackingActiveEnemy {
     @Override
     public PopulatedLevel getLevel() {
         return this.enemy.getLevel();
+    }
+
+    @Override
+    public void stopAct() {
+        this.enemy.stopAct();
     }
 }

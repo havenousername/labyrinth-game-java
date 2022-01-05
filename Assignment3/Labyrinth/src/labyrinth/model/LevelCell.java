@@ -12,15 +12,15 @@ import java.util.Objects;
  * @author andreicristea
  */
 public class LevelCell {
-    private Level level;
+    private LevelCellChar level;
     private final Position position;
 
-    public LevelCell(Level level, Position position) {
+    public LevelCell(LevelCellChar level, Position position) {
         this.level = level;
         this.position = position;
     }
     
-    public LevelCell(Level level, int x, int y) {
+    public LevelCell(LevelCellChar level, int x, int y) {
         this.level = level;
         position = new Position(x, y);
     }
@@ -29,12 +29,12 @@ public class LevelCell {
         return position;
     }
     
-    public void setLevel(Level level) {
+    public void setLevel(LevelCellChar level) {
         this.level = level;
     }
    
 
-    public Level getLevel() {
+    public LevelCellChar getLevel() {
         return level;
     }
 

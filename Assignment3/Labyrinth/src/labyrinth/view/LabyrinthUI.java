@@ -13,7 +13,7 @@ import java.io.IOException;
 import javax.swing.JPanel;
 import labyrinth.model.Game;
 import resource.ResourceLoader;
-import labyrinth.model.Level;
+import labyrinth.model.LevelCellChar;
 import labyrinth.model.LevelCell;
 
 /**
@@ -58,7 +58,7 @@ public final class LabyrinthUI extends JPanel {
         for (var x = 0; x < levelCells.length; x++) {
             for (var y = 0; y < levelCells[x].length; y++ ) {
                 Image image = null;
-                Level level = levelCells[x][y].getLevel();
+                LevelCellChar level = levelCells[x][y].getLevel();
                 boolean isVisibleCell = game.getCurrentLevel().isPlayerVisibleCell(levelCells[x][y]);
                 image = switch (level) {
                     case WALL -> isVisibleCell ? wall : wallHidden;

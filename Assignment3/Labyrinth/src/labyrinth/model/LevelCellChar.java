@@ -9,9 +9,9 @@ package labyrinth.model;
  *
  * @author andreicristea
  */
-public enum Level {
+public enum LevelCellChar {
     WALL('#'), EMPTY(' '), EXIT('.'), PLAYER('P'), ENEMY('E');
-    Level(char level) {
+    LevelCellChar(char level) {
         this.level = level;
     }
     
